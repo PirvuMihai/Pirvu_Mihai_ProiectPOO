@@ -1,5 +1,9 @@
 #include <iostream>
 //Domeniul Pamant, Pirvu Mihai, grupa 1048
+
+//supraincarcate: =, +, [], ==
+
+
 using namespace std;
 class Continent {
 private:
@@ -46,7 +50,40 @@ public:
             return *this;
         }
     }
-    Continent(int nrContinent,string nume,int populatie) : nrContinent(nrContinent) {
+
+    Continent operator+ (const Continent& c) {
+        Continent aux = *this;
+        aux.populatie = this->populatie + c.populatie;
+        aux.numarTari = this->numarTari + c.numarTari;
+        if (aux.tari != NULL)
+            delete[]aux.tari;
+        aux.tari = new string[aux.numarTari];
+        for (int i = 0; i < this->numarTari; i++)
+            aux.tari[i] = this->tari[i];
+        for (int j = this->numarTari; j < aux.numarTari; j++)
+            aux.tari[j] = c.tari[j - this->numarTari];
+        return aux;
+    }
+
+    string& operator[](int index) {
+        return this->tari[index];
+    }
+
+    const bool& operator==(const Continent& c) {
+        int cnt = 0;
+        if (this->nume == c.nume && this->populatie == c.populatie && this->numarTari == c.numarTari)
+            for (int i = 0; i < this->numarTari; i++)
+                if (this->tari[i] != c.tari[i])
+                    cnt = 1;
+        if (this->nume != c.nume || this->populatie != c.populatie || this->numarTari != c.numarTari)
+            cnt = 1;
+        if (cnt == 0)
+            return true;
+        else
+            return false;
+    }
+
+    Continent(int nrContinent, string nume, int populatie) : nrContinent(nrContinent) {
         this->nume = nume;
         this->populatie = 0;
         this->numarTari = numarTari;
@@ -66,7 +103,7 @@ public:
             }
         }
         else {
-            cout << "Nu au fost introduse numele tarilor"<<endl;
+            cout << "Nu au fost introduse numele tarilor" << endl;
         }
         cout << "In ultimii ani, au avut loc " << this->numarCatastrofe << " catastrofe pe acest continent";
         cout << "\n";
@@ -82,10 +119,10 @@ public:
     void setNume(string nume) {
         this->nume = nume;
     }
-    string getNume() {
+    string getNume() const {
         return this->nume;
     }
-    int getNrContinent() {
+    int getNrContinent() const {
         return this->nrContinent;
     }
     static void setPlaneta(string planeta) {
@@ -97,13 +134,13 @@ public:
     void setPopulatie(int populatie) {
         this->populatie = populatie;
     }
-    int getPopulatie() {
+    int getPopulatie() const {
         return this->populatie;
     }
     void setNumarTari(int numarTari) {
         this->numarTari = numarTari;
     }
-    int getNumarTari() {
+    int getNumarTari() const {
         return this->numarTari;
     }
     void setTari(int numarTari, string* tari) {
@@ -116,7 +153,7 @@ public:
                 this->tari[i] = tari[i];
         }
     }
-    string* getTari() {
+    string* getTari() const {
         return this->tari;
     }
     static void setNumarCatastrofe(int numarCatastrofe) {
@@ -125,10 +162,39 @@ public:
     static int getNumarCatastrofe() {
         return Continent::numarCatastrofe;
     }
-
+    friend ostream& operator<<(ostream& out, const Continent& c) {
+        out << "Continentul " << c.nume << " se afla pe planeta " << c.planeta << ", are populatia de " << c.populatie << " de locuitori. Acestia traiesc in " << c.numarTari << " tari, acestea fiind:";
+        out << "\n";
+        if (c.numarTari != 0 && c.tari != NULL) {
+            for (int i = 0; i < c.numarTari; i++) {
+                out << c.tari[i];
+                out << "\n";
+            }
+        }
+        out << "Pe acest continent au avut loc " << c.numarCatastrofe << " catastrofe" << endl;
+        return out;
+    }
+    friend istream& operator>>(istream& in, Continent& c) {
+        cout << "Numele: ";
+        in >> c.nume;
+        cout << "Populatie: ";
+        in >> c.populatie;
+        cout << "Numarul de tari: ";
+        in >> c.numarTari;
+        if (c.tari != NULL)
+            delete[]c.tari;
+        c.tari = new string[c.numarTari];
+        for (int i = 0; i < c.numarTari; i++) {
+            cout << "Numele tarii " << i + 1 << " : ";
+            in >> c.tari[i];
+        }
+        return in;
+    }
 };
 string Continent::planeta = "Pamant";
 int Continent::numarCatastrofe = 0;
+
+//supraincarcati: =, <, >, !=, +=
 
 class Tara {
 private:
@@ -150,14 +216,14 @@ public:
     Tara(string nume, int populatieTara, string capitala, int nrOrase, string* orase, float latitudine) : latitudine(latitudine) {
         this->nume = nume;
         this->populatieTara = populatieTara;
-        this->capitala = capitala; 
+        this->capitala = capitala;
         this->nrOrase = nrOrase;
         this->orase = new string[nrOrase];
         for (int i = 0; i < this->nrOrase; i++)
             this->orase[i] = orase[i];
     }
 
-    Tara(Tara &t) :latitudine(t.latitudine) {
+    Tara(Tara& t) :latitudine(t.latitudine) {
         this->nume = t.nume;
         this->populatieTara = t.populatieTara;
         this->capitala = t.capitala;
@@ -186,6 +252,47 @@ public:
         }
     }
 
+    const bool& operator<(const Tara& t) {
+        if (this->populatieTara < t.populatieTara && this->nrOrase < t.nrOrase && this->latitudine <= t.latitudine)
+            return true;
+        return false;
+    }
+
+    const bool& operator>(const Tara& t) {
+        if (this->populatieTara > t.populatieTara && this->nrOrase > t.nrOrase && this->latitudine <= t.latitudine)
+            return true;
+        return false;
+    }
+
+    const bool& operator!=(const Tara& t) {
+        int cnt = 0;
+        if (this->nume == t.nume && this->populatieTara == t.populatieTara && this->latitudine == t.latitudine && this->galaxie == t.galaxie && this->nrOrase == t.nrOrase &&
+            this->capitala == t.capitala) {
+            for (int i = 0; i < this->nrOrase; i++)
+                if (this->orase[i] != t.orase[i])
+                    cnt = 1;
+        }
+        else
+            return true;
+        if (cnt == 0)
+            return false;
+    }
+
+    Tara operator+=(const Tara& t) {
+        Tara aux = *this;
+        aux.populatieTara = this->populatieTara + t.populatieTara;
+        aux.nrOrase = this->nrOrase + t.nrOrase;
+        if (aux.orase != NULL)
+            delete[]aux.orase;
+        aux.orase = new string[aux.nrOrase];
+        for (int i = 0; i < this->nrOrase; i++)
+            aux.orase[i] = this->orase[i];
+        for (int j = this->nrOrase; j < aux.nrOrase; j++)
+            aux.orase[j] = t.orase[j-this->nrOrase];
+        *this = aux;
+        return *this;
+    }
+
     Tara(string nume, int populatieTara, int nrOrase, float latitudine) : latitudine(30) {
         this->nume = nume;
         this->populatieTara = populatieTara;
@@ -194,7 +301,7 @@ public:
         this->capitala = "Nu are capitala.";
     }
     void afisare() {
-        cout << "Tara " << this->nume << " se afla in galaxia " << this->galaxie << ", are capitala in orasul " << this->capitala <<" cu o populatie de "<<this->populatieTara<< ", are un numar de " << this->nrOrase << " orase, acestea fiind: ";
+        cout << "Tara " << this->nume << " se afla in galaxia " << this->galaxie << ", are capitala in orasul " << this->capitala << " cu o populatie de " << this->populatieTara << ", are un numar de " << this->nrOrase << " orase, acestea fiind: ";
         cout << "\n";
         if (this->nrOrase != 0 && this->orase != NULL) {
             for (int i = 0; i < this->nrOrase; i++) {
@@ -203,7 +310,7 @@ public:
             }
         }
         else
-            cout << "Numele oraselor nu au fost introduse" << endl<<endl;
+            cout << "Numele oraselor nu au fost introduse" << endl << endl;
     }
     ~Tara() {
         if (this->orase != NULL)
@@ -213,13 +320,13 @@ public:
     void setNume(string nume) {
         this->nume = nume;
     }
-    string getNume() {
+    string getNume() const {
         return this->nume;
     }
     void setPopulatieTara(int populatie) {
         this->populatieTara = populatie;
     }
-    int getPopulatieTara() {
+    int getPopulatieTara() const {
         return this->populatieTara;
     }
     static void setGalaxie(string galaxie) {
@@ -228,19 +335,19 @@ public:
     static string getGalaxie() {
         return Tara::galaxie;
     }
-    float getLatitudine() {
+    float getLatitudine() const {
         return this->latitudine;
     }
     void setNrOrase(int nrOrase) {
         this->nrOrase = nrOrase;
     }
-    int getNrOrase() {
+    int getNrOrase() const {
         return this->nrOrase;
     }
     void setCapitala(string capitala) {
         this->capitala = capitala;
     }
-    string getCapitala() {
+    string getCapitala() const {
         return this->capitala;
     }
     void setOrase(int nrOrase, string* orase) {
@@ -253,13 +360,42 @@ public:
                 this->orase[i] = orase[i];
         }
     }
-    string* getOrase() {
+    string* getOrase() const {
         return this->orase;
     }
     friend int inmultireTara(Tara& tara);
+    friend ostream& operator<<(ostream& out, const Tara& t) {
+        cout << "Tara cu numele " << t.nume << " are capitala in " << t.capitala << " are o populatie de " << t.populatieTara << " se afla in galaxia " << t.galaxie << " la latitudinea " << t.latitudine <<
+            ", are un numar de " << t.nrOrase << " orase, acestea fiind: " << endl;
+        for (int i = 0; i < t.nrOrase; i++)
+            cout << t.orase[i] << endl;
+        cout << endl;
+        return out;
+    }
+    friend istream& operator>>(istream& in, Tara& t) {
+        cout << "Numele: ";
+        in >> t.nume;
+        cout << "Capitala: ";
+        in >> t.capitala;
+        cout << "Populatia tarii: ";
+        in >> t.populatieTara;
+        cout << "Numarul de orase: ";
+        in >> t.nrOrase;
+        if (t.orase != NULL)
+            delete[]t.orase;
+        t.orase = new string[t.nrOrase];
+        for (int i = 0; i < t.nrOrase; i++) {
+            cout << "Numele orasului cu numarul " << i + 1<< " :";
+            in >> t.orase[i];
+        }
+        return in;
+    }
 };
 
 string Tara::galaxie = "Calea Lactee";
+
+//de supraincarcat: ++, !, (), ->
+//Supraincarcati: =
 
 class Oras {
 private:
@@ -315,6 +451,49 @@ public:
         }
     }
 
+    Oras operator++() {
+        this->nrLocuitori++;
+        string* aux = new string[nrCartiere];
+        for (int i = 0; i < nrCartiere; i++)
+            aux[i] = this->cartiere[i];
+        this->nrCartiere++;
+        delete[]this->cartiere;
+        this->cartiere = new string[this->nrCartiere];
+        for (int i = 0; i < nrCartiere-1; i++)
+            this->cartiere[i] = aux[i];
+        this->cartiere[nrCartiere-1] = "Acest cartier a fost introdus ulterior";
+        return *this;
+    }
+
+    Oras operator*(const Oras& o) {
+        Oras aux = *this;
+        aux.nrLocuitori = this->nrLocuitori * o.nrLocuitori;
+        return aux;
+    }
+
+    Oras operator*=(const Oras& o) {
+        Oras aux = *this;
+        aux.nrLocuitori = this->nrLocuitori * o.nrLocuitori;
+        return aux;
+    }
+
+    string* operator()(int n) {
+        string* vector = new string[n];
+        if (n >= 0 && n < this->nrCartiere){
+            for (int i = 0; i < n; i++)
+                vector[i] = this->cartiere[i];
+        }
+        if (vector != NULL)
+            return vector;
+        delete[]vector;
+    }
+
+    /*
+    Oras* operator->(){
+        
+    }
+    */
+
     ~Oras() {
         if (this->cartiere != NULL)
             delete[]this->cartiere;
@@ -332,25 +511,25 @@ public:
     void setNume(string nume) {
         this->nume = nume;
     }
-    string getNume() {
+    string getNume() const {
         return this->nume;
     }
 
     void setNrLocuitori(int nrLoc) {
         this->nrLocuitori = nrLoc;
     }
-    int getNrLocuitori() {
+    int getNrLocuitori() const {
         return this->nrLocuitori;
     }
 
     void setNrCartiere(int nrCar) {
         this->nrCartiere = nrCar;
     }
-    int getNrCartiere() {
+    int getNrCartiere() const {
         return this->nrCartiere;
     }
 
-    float getAltitudine() {
+    float getAltitudine() const {
         return this->altitudine;
     }
 
@@ -371,7 +550,7 @@ public:
                 this->cartiere[i] = cartiere[i];
         }
     }
-    string* getCartiere() {
+    string* getCartiere() const {
         return this->cartiere;
     }
     friend int inmultireOras(Oras& oras);
@@ -389,6 +568,7 @@ string Oras::tara = "Romania";
 
 int main()
 {
+    /*
     cout << "Teste pentru obiectul continent: " << endl;
     cout << endl;
     Continent continent1;
@@ -468,7 +648,7 @@ int main()
     tara5.setPopulatieTara(2000);
     tara5.afisare();
 
-    cout << endl<<endl;
+    cout << endl << endl;
 
     cout << "Teste pentru obiectul oras: ";
 
@@ -505,8 +685,55 @@ int main()
     oras5.setNrLocuitori(oras2.getNrLocuitori());
     oras5.afisare();
 
-    cout <<oras2.getNrCartiere()<<" "<<oras2.getNrLocuitori()<<" " << inmultireOras(oras2);
+    cout << oras2.getNrCartiere() << " " << oras2.getNrLocuitori() << " " << inmultireOras(oras2);
     cout << endl;
-    cout <<tara3.getNrOrase()<< " " << tara3.getPopulatieTara() << " " << inmultireTara(tara3);
+    cout << tara3.getNrOrase() << " " << tara3.getPopulatieTara() << " " << inmultireTara(tara3);
+
+    //De implementat + testat cin+cout la toate clasele
+
+
+
+Continent c1;
+cin >> c1;
+cout << c1;
+Continent c2;
+cin >> c2;
+Continent c3;
+c3 = c2 + c1;
+cout << c3;
+cout << c2[1];
+cout << endl;
+cout << c3[2];
+cout << endl;
+if (c3 == c1)
+cout << "E bine";
+else
+cout << "Nu e bine";
+cout << endl;
+Continent c4 = c1;
+if(c4==c1)
+cout << "E bine";
+else
+cout << "Nu e bine";
+
+Tara t1;
+cin >> t1;
+Tara t2;
+cin >> t2;
+if (t1 > t2)
+    cout << "Adevarat!"<<endl;
+if (t1 < t2)
+    cout << "La fel de adevarat dar invers"<<endl;
+if (t1 != t2)
+    cout << "Clar" << endl;
+Tara t3 = t1;
+if (t1 != t3)
+    cout << "N-ar trebui?" << endl;
+t3 += t2;
+cout << t3;
+*/
+//De testat pentru oras, in rest e cam gata
+
+
 }
 
