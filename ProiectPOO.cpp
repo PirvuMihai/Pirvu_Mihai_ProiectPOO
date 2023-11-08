@@ -163,15 +163,15 @@ public:
         return Continent::numarCatastrofe;
     }
     friend ostream& operator<<(ostream& out, const Continent& c) {
-        out << "Continentul " << c.nume << " se afla pe planeta " << c.planeta << ", are populatia de " << c.populatie << " de locuitori. Acestia traiesc in " << c.numarTari << " tari, acestea fiind:";
+        out << "Continentul " << c.getNume() << " se afla pe planeta " << c.getPlaneta() << ", are populatia de " << c.getPopulatie() << " de locuitori. Acestia traiesc in " << c.getNumarTari() << " tari, acestea fiind:";
         out << "\n";
-        if (c.numarTari != 0 && c.tari != NULL) {
+        if (c.getNumarTari() != 0 && c.getTari() != NULL) {
             for (int i = 0; i < c.numarTari; i++) {
-                out << c.tari[i];
+                out << c.getTari()[i];
                 out << "\n";
             }
         }
-        out << "Pe acest continent au avut loc " << c.numarCatastrofe << " catastrofe" << endl;
+        out << "Pe acest continent au avut loc " << c.getNumarCatastrofe() << " catastrofe" << endl;
         return out;
     }
     friend istream& operator>>(istream& in, Continent& c) {
@@ -181,6 +181,8 @@ public:
         in >> c.populatie;
         cout << "Numarul de tari: ";
         in >> c.numarTari;
+        cout << "Planeta: ";
+        in >> c.planeta;
         if (c.tari != NULL)
             delete[]c.tari;
         c.tari = new string[c.numarTari];
@@ -288,7 +290,7 @@ public:
         for (int i = 0; i < this->nrOrase; i++)
             aux.orase[i] = this->orase[i];
         for (int j = this->nrOrase; j < aux.nrOrase; j++)
-            aux.orase[j] = t.orase[j-this->nrOrase];
+            aux.orase[j] = t.orase[j - this->nrOrase];
         *this = aux;
         return *this;
     }
@@ -365,10 +367,10 @@ public:
     }
     friend int inmultireTara(Tara& tara);
     friend ostream& operator<<(ostream& out, const Tara& t) {
-        cout << "Tara cu numele " << t.nume << " are capitala in " << t.capitala << " are o populatie de " << t.populatieTara << " se afla in galaxia " << t.galaxie << " la latitudinea " << t.latitudine <<
-            ", are un numar de " << t.nrOrase << " orase, acestea fiind: " << endl;
-        for (int i = 0; i < t.nrOrase; i++)
-            cout << t.orase[i] << endl;
+        cout << "Tara cu numele " << t.getNume() << " are capitala in " << t.getCapitala() << " are o populatie de " << t.getPopulatieTara() << " se afla in galaxia " << t.getGalaxie() << " la latitudinea " << t.getLatitudine() <<
+            ", are un numar de " << t.getNrOrase() << " orase, acestea fiind: " << endl;
+        for (int i = 0; i < t.getNrOrase(); i++)
+            cout << t.getOrase()[i] << endl;
         cout << endl;
         return out;
     }
@@ -381,11 +383,13 @@ public:
         in >> t.populatieTara;
         cout << "Numarul de orase: ";
         in >> t.nrOrase;
+        cout << "Galaxie: ";
+        in >> t.galaxie;
         if (t.orase != NULL)
             delete[]t.orase;
         t.orase = new string[t.nrOrase];
         for (int i = 0; i < t.nrOrase; i++) {
-            cout << "Numele orasului cu numarul " << i + 1<< " :";
+            cout << "Numele orasului cu numarul " << i + 1 << " :";
             in >> t.orase[i];
         }
         return in;
@@ -394,7 +398,7 @@ public:
 
 string Tara::galaxie = "Calea Lactee";
 
-//de supraincarcat: ++, !, (), ->
+//de supraincarcat: ++, *, *=, (), ->
 //Supraincarcati: =
 
 class Oras {
@@ -459,9 +463,23 @@ public:
         this->nrCartiere++;
         delete[]this->cartiere;
         this->cartiere = new string[this->nrCartiere];
-        for (int i = 0; i < nrCartiere-1; i++)
+        for (int i = 0; i < nrCartiere - 1; i++)
             this->cartiere[i] = aux[i];
-        this->cartiere[nrCartiere-1] = "Acest cartier a fost introdus ulterior";
+        this->cartiere[nrCartiere - 1] = "Acest cartier a fost introdus ulterior";
+        return *this;
+    }
+
+    Oras operator++(int) {
+        this->nrLocuitori++;
+        string* aux = new string[nrCartiere];
+        for (int i = 0; i < nrCartiere; i++)
+            aux[i] = this->cartiere[i];
+        this->nrCartiere++;
+        delete[]this->cartiere;
+        this->cartiere = new string[this->nrCartiere];
+        for (int i = 0; i < nrCartiere - 1; i++)
+            this->cartiere[i] = aux[i];
+        this->cartiere[nrCartiere - 1] = "Acest cartier a fost introdus ulterior";
         return *this;
     }
 
@@ -479,7 +497,7 @@ public:
 
     string* operator()(int n) {
         string* vector = new string[n];
-        if (n >= 0 && n < this->nrCartiere){
+        if (n >= 0 && n < this->nrCartiere) {
             for (int i = 0; i < n; i++)
                 vector[i] = this->cartiere[i];
         }
@@ -488,11 +506,12 @@ public:
         delete[]vector;
     }
 
-    /*
+    
     Oras* operator->(){
-        
+        this->nrLocuitori = 100;
+        return this;
     }
-    */
+    
 
     ~Oras() {
         if (this->cartiere != NULL)
@@ -554,6 +573,41 @@ public:
         return this->cartiere;
     }
     friend int inmultireOras(Oras& oras);
+
+    friend istream& operator>>(istream& in, Oras& o) {
+        cout << "Introduceti numele tarii: ";
+        in >> o.nume;
+        cout << "Introduceti numarul locuitorilor din tara: ";
+        in >> o.nrLocuitori;
+        cout << "Introduceti numarul de cartiere :";
+        in >> o.nrCartiere;
+        delete[]o.cartiere;
+        o.cartiere = new string[o.nrCartiere];
+        for (int i = 0; i < o.nrCartiere; i++) {
+            cout << "Introduceti numele cartierului numarul " << i + 1 << " : ";
+            in >> o.cartiere[i];
+        }
+        return in;
+    }
+    friend ostream& operator<<(ostream& out, Oras& o) {
+        out << "Orasul cu numele " << o.getNume() << ", din tara " << o.getTara() << " se afla la altitudinea " << o.getAltitudine() << " si are un numar de " << o.getNrLocuitori();
+        if (o.getNrLocuitori() <= 10)
+            out << " locuitori";
+        else
+            out << " de locuitori";
+        out << ". Acestia sunt situati in " << o.getNrCartiere();
+        if (o.getNrCartiere() <= 10)
+            out << " cartiere";
+        else
+            out << " de cartiere";
+        out << ", acestea fiind :"<<endl;
+        for (int i = 0; i < o.getNrCartiere(); i++) {
+            out << o.getCartiere()[i];
+            out << endl;
+        }
+        return out;
+    }
+
 };
 
 int inmultireOras(Oras& oras) {
@@ -568,7 +622,7 @@ string Oras::tara = "Romania";
 
 int main()
 {
-    /*
+
     cout << "Teste pentru obiectul continent: " << endl;
     cout << endl;
     Continent continent1;
@@ -649,7 +703,7 @@ int main()
     tara5.afisare();
 
     cout << endl << endl;
-
+    
     cout << "Teste pentru obiectul oras: ";
 
     cout << endl;
@@ -684,56 +738,85 @@ int main()
     oras5.setTara(oras1.getTara());
     oras5.setNrLocuitori(oras2.getNrLocuitori());
     oras5.afisare();
+    ++oras5;
+    oras5.afisare();
+    oras5++;
+    oras5.afisare();
+
+    
 
     cout << oras2.getNrCartiere() << " " << oras2.getNrLocuitori() << " " << inmultireOras(oras2);
     cout << endl;
     cout << tara3.getNrOrase() << " " << tara3.getPopulatieTara() << " " << inmultireTara(tara3);
 
-    //De implementat + testat cin+cout la toate clasele
 
 
+    Continent c1;
+    cin >> c1;
+    cout << c1;
+    Continent c2;
+    cin >> c2;
+    Continent c3;
+    c3 = c2 + c1;
+    cout << c3;
+    cout << c2[1];
+    cout << endl;
+    cout << c3[2];
+    cout << endl;
+    if (c3 == c1)
+    cout << "E bine";
+    else
+    cout << "Nu e bine";
+    cout << endl;
+    Continent c4 = c1;
+        if(c4==c1)
+            cout << "E bine";
+        else
+            cout << "Nu e bine";
 
-Continent c1;
-cin >> c1;
-cout << c1;
-Continent c2;
-cin >> c2;
-Continent c3;
-c3 = c2 + c1;
-cout << c3;
-cout << c2[1];
-cout << endl;
-cout << c3[2];
-cout << endl;
-if (c3 == c1)
-cout << "E bine";
-else
-cout << "Nu e bine";
-cout << endl;
-Continent c4 = c1;
-if(c4==c1)
-cout << "E bine";
-else
-cout << "Nu e bine";
-
-Tara t1;
-cin >> t1;
-Tara t2;
-cin >> t2;
-if (t1 > t2)
-    cout << "Adevarat!"<<endl;
-if (t1 < t2)
-    cout << "La fel de adevarat dar invers"<<endl;
-if (t1 != t2)
-    cout << "Clar" << endl;
-Tara t3 = t1;
-if (t1 != t3)
-    cout << "N-ar trebui?" << endl;
-t3 += t2;
-cout << t3;
-*/
-//De testat pentru oras, in rest e cam gata
+    Tara t1;
+    cin >> t1;
+    Tara t2;
+    cin >> t2;
+    if (t1 > t2)
+        cout << "Adevarat!"<<endl;
+    if (t1 < t2)
+        cout << "La fel de adevarat dar invers"<<endl;
+    if (t1 != t2)
+        cout << "Clar" << endl;
+    Tara t3 = t1;
+    if (t1 != t3)
+        cout << "N-ar trebui?" << endl;
+    t3 += t2;
+    cout << t3;
 
 
-}
+    Oras o1;
+    cin >> o1;
+    cout << o1;
+    o1++;
+    cout << o1;
+    ++o1;
+    cout << o1;
 
+    Oras o2 = o1;
+    Oras o3;
+    o3 = o2 * o1;
+    cout << o3;
+    Oras o4;
+    o3 *= o4;
+    cout << o4;
+    cout << endl;
+    int cnt = o3.getNrCartiere()-1;
+    string* orase = o3(cnt);
+    if (orase != nullptr)
+        for (int i = 0; i < cnt; i++)
+            cout << orase[i] << endl;
+    int popul = o3.getNrLocuitori();
+    cout << "Orasul " << o4.getNume() << " are o populatie de " << o4.getNrLocuitori()<<endl;
+    cout << "Insa, primaria orasului doreste sa ajunga la o populatie de " << o3->getNrLocuitori();
+    if (popul > o3->getNrLocuitori())
+        cout << endl << "Astfel, acestia vor fi nevoiti sa mareasca populatia cu " << popul - o3->getNrLocuitori() << " de locuitori";
+    else
+        cout << endl << "Astfel, acestia vor fi nevoiti sa scada populatia cu " << o3->getNrLocuitori() - popul << " de locuitori";
+    }
