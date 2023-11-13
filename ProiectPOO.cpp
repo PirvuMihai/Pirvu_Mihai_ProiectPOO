@@ -181,8 +181,6 @@ public:
         in >> c.populatie;
         cout << "Numarul de tari: ";
         in >> c.numarTari;
-        cout << "Planeta: ";
-        in >> c.planeta;
         if (c.tari != NULL)
             delete[]c.tari;
         c.tari = new string[c.numarTari];
@@ -506,12 +504,12 @@ public:
         delete[]vector;
     }
 
-    
-    Oras* operator->(){
+
+    Oras* operator->() {
         this->nrLocuitori = 100;
         return this;
     }
-    
+
 
     ~Oras() {
         if (this->cartiere != NULL)
@@ -600,7 +598,7 @@ public:
             out << " cartiere";
         else
             out << " de cartiere";
-        out << ", acestea fiind :"<<endl;
+        out << ", acestea fiind :" << endl;
         for (int i = 0; i < o.getNrCartiere(); i++) {
             out << o.getCartiere()[i];
             out << endl;
@@ -622,7 +620,6 @@ string Oras::tara = "Romania";
 
 int main()
 {
-
     cout << "Teste pentru obiectul continent: " << endl;
     cout << endl;
     Continent continent1;
@@ -703,7 +700,7 @@ int main()
     tara5.afisare();
 
     cout << endl << endl;
-    
+
     cout << "Teste pentru obiectul oras: ";
 
     cout << endl;
@@ -743,7 +740,7 @@ int main()
     oras5++;
     oras5.afisare();
 
-    
+
 
     cout << oras2.getNrCartiere() << " " << oras2.getNrLocuitori() << " " << inmultireOras(oras2);
     cout << endl;
@@ -764,24 +761,24 @@ int main()
     cout << c3[2];
     cout << endl;
     if (c3 == c1)
-    cout << "E bine";
+        cout << "E bine";
     else
-    cout << "Nu e bine";
+        cout << "Nu e bine";
     cout << endl;
     Continent c4 = c1;
-        if(c4==c1)
-            cout << "E bine";
-        else
-            cout << "Nu e bine";
+    if (c4 == c1)
+        cout << "E bine";
+    else
+        cout << "Nu e bine";
 
     Tara t1;
     cin >> t1;
     Tara t2;
     cin >> t2;
     if (t1 > t2)
-        cout << "Adevarat!"<<endl;
+        cout << "Adevarat!" << endl;
     if (t1 < t2)
-        cout << "La fel de adevarat dar invers"<<endl;
+        cout << "La fel de adevarat dar invers" << endl;
     if (t1 != t2)
         cout << "Clar" << endl;
     Tara t3 = t1;
@@ -807,16 +804,105 @@ int main()
     o3 *= o4;
     cout << o4;
     cout << endl;
-    int cnt = o3.getNrCartiere()-1;
+    int cnt = o3.getNrCartiere() - 1;
     string* orase = o3(cnt);
     if (orase != nullptr)
         for (int i = 0; i < cnt; i++)
             cout << orase[i] << endl;
     int popul = o3.getNrLocuitori();
-    cout << "Orasul " << o4.getNume() << " are o populatie de " << o4.getNrLocuitori()<<endl;
+    cout << "Orasul " << o4.getNume() << " are o populatie de " << o4.getNrLocuitori() << endl;
     cout << "Insa, primaria orasului doreste sa ajunga la o populatie de " << o3->getNrLocuitori();
     if (popul > o3->getNrLocuitori())
         cout << endl << "Astfel, acestia vor fi nevoiti sa mareasca populatia cu " << popul - o3->getNrLocuitori() << " de locuitori";
     else
         cout << endl << "Astfel, acestia vor fi nevoiti sa scada populatia cu " << o3->getNrLocuitori() - popul << " de locuitori";
+
+
+    cout << endl << endl << "Teste pentru vectori de obiecte.";
+    cout << endl;
+    cout << "Cate continente doriti sa adaugati?" << endl;
+    int n = 0;
+    cin >> n;
+    Continent* vecCont = new Continent[n];
+    for (int i = 0; i < n; i++)
+        cin >> vecCont[i];
+    cout << endl <<"Continentele au fost adaugate cu succes!";
+    cout <<endl<< "Pentru afisarea continentelor apasati tasta 1"<<endl;
+    int raspuns;
+    cin >> raspuns;
+    if (raspuns == 1)
+        for (int i = 0; i < n; i++) {
+            cout << "Continentul numarul " << i + 1 << ":" << endl;
+            cout << vecCont[i];
+        }
+    for (int i = 0; i < n; i++) {
+    delete[]vecCont[i];
     }
+    delete[]vecCont;
+    cout << "Cate tari doriti sa adaugati?" << endl;
+    cin >> n;
+    Tara* taraVec = new Tara[n];
+    for (int i = 0; i < n; i++)
+        cin >> taraVec[i];
+    cout << endl << "Tarile au fost adaugate cu succes!";
+    cout << endl << "Pentru afisarea tarilor apasati tasta 2" << endl;
+    cin >> raspuns;
+    if(raspuns==2)
+        for (int i = 0; i < n; i++) {
+            cout << "Tara cu numarul " << i + 1 << ":" << endl;
+            cout << taraVec[i];
+        }
+        for (int i = 0; i < n; i++) {
+    delete[]taraVec[i];
+    }
+    delete[]taraVec;
+    cout << endl << "Cate orase doriti sa adaugati?" << endl;
+    cin >> n;
+    Oras* orasVec = new Oras[n];
+    for (int i = 0; i < n; i++)
+        cin >> orasVec[i];
+    cout << endl << "Orasele au fost adaugate cu succes!";
+    cout << endl << "Pentru afisarea orasele apasati tasta 3" << endl;
+    cin >> raspuns;
+    if (raspuns == 3)
+        for (int i = 0; i < n; i++) {
+            cout << "Orasul cu numarul " << i + 1 << ":" << endl;
+            cout << orasVec[i];
+        }
+        for (int i = 0; i < n; i++) {
+    delete[]orasVec[i];
+    }
+    delete[]orasVec;
+    cout << endl << endl << "Teste pentru matrice de obiecte:";
+    cout << endl;
+    cout << "Cate linii doriti sa aiba aceasta matrice?"<<endl;
+    int n;
+    cin >> n;
+    Continent** matriceContinent = new Continent * [n];
+    cout << "Cate coloane doriti sa aiba aceasta matrice?"<<endl;
+    int m;
+    cin >> m;
+    for(int i=0; i<n; i++)
+        matriceContinent[i] = new Continent[m];
+    int h = 1;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+        {
+            cout << "Introduceti continentul numarul "<<h<<endl;
+            cin >> matriceContinent[i][j];
+            h++;
+        }
+    h = 1;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+        {
+            cout << "Elementul de pe pozitia " << h << " este: ";
+            cout << matriceContinent[i][j];
+            h++;
+        }
+    for (int i = 0; i < n; i++)
+        {
+            delete[]matriceContinent[i];
+        }
+    delete[]matriceContinent;
+}
