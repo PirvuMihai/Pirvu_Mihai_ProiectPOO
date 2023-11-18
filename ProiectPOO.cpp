@@ -608,6 +608,124 @@ public:
 
 };
 
+class Planeta {
+private:
+    int nrContinente;
+    Continent* continent;
+    const int ID;
+    string nume;
+    int nrSpecii;
+public:
+    Planeta() :ID(0) {
+        this->nrContinente = 0;
+        this->continent = NULL;
+        this->nume = "Planeta nu are nume";
+        this->nrSpecii = 0;
+    }
+    Planeta(int ID, int nrContinente, Continent* continent, string nume, int nrSpecii) :ID(ID) {
+        if (nume.size() > 2)
+            this->nume = nume;
+        this->nrSpecii = nrSpecii;
+        this->nrContinente = nrContinente;
+        delete[]this->continent;
+        this->continent = new Continent[this->nrContinente];
+        for (int i = 0; i < this->nrContinente; i++) {
+            this->continent[i] = continent[i];
+        }
+    }
+    ~Planeta() {
+        delete[]this->continent;
+    }
+    Planeta(const Planeta& p):ID(p.ID) {
+        if (this != &p) {
+            if (nume.size() > 2)
+                this->nume = p.nume;
+            this->nrSpecii = p.nrSpecii;
+            this->nrContinente = p.nrContinente;
+            delete[]this->continent;
+            this->continent = new Continent[this->nrContinente];
+            for (int i = 0; i < this->nrContinente; i++) {
+                this->continent[i] = p.continent[i];
+            }
+        }
+    }
+    const Planeta operator=(Planeta& p) {
+        if (this != &p) {
+            if (nume.size() > 2)
+                this->nume = p.nume;
+            this->nrSpecii = p.nrSpecii;
+            this->nrContinente = p.nrContinente;
+            delete[]this->continent;
+            this->continent = new Continent[this->nrContinente];
+            for (int i = 0; i < this->nrContinente; i++) {
+                this->continent[i] = p.continent[i];
+            }
+        }
+        return *this;
+    }
+    const Planeta operator+(const Planeta& p) {
+        Planeta aux = *this;
+        aux.nrSpecii = this->nrSpecii + p.nrSpecii;
+        delete[]aux.continent;
+        aux.nrContinente = this->nrContinente + p.nrContinente;
+        aux.continent = new Continent[aux.nrContinente];
+        for (int i = 0; i < this->nrContinente; i++)
+            aux.continent[i] = this->continent[i];
+        for (int i = this->nrContinente; i < aux.nrContinente; i++)
+            aux.continent[i] = p.continent[i - this->nrContinente];
+        return aux;
+    }
+    Continent operator[](int n) {
+        if (n > 0 && n < this->nrContinente) {
+            return this->continent[n];
+        }
+    }
+    Continent* operator()(int n) {
+        Continent* aux;
+        if (n > 0 && n < this->nrContinente) {
+            delete[]aux;
+            aux = new Continent[n];
+            for (int i = 0; i < n; i++)
+                aux[i] = this->continent[i];
+        }
+        if (aux != NULL)
+            return aux;
+        else
+            return 0;
+    }
+
+    int getNrSpecii() {
+        return this->nrSpecii;
+    }
+    void setNrSpecii(int n) {
+        this->nrSpecii = n;
+    }
+    int getNrContinente() {
+        return this->nrContinente;
+    }
+    void setNrContinente(int n) {
+        this->nrContinente = n;
+    }
+    int getID() {
+        return this->ID;
+    }
+    string getNume() {
+        return this->nume;
+    }
+    void setNume(string nume) {
+        this->nume = nume;
+    }
+    Continent* getContinent() {
+        return this->continent;
+    }
+    void setContinent(int n, Continent* c) {
+        if (n < this->nrContinente) {
+            for(int i=0; i<n; i++)
+                this->continent[i] = c[i];
+        }
+    }
+};
+
 int inmultireOras(Oras& oras) {
     return oras.getNrCartiere() * oras.getNrLocuitori();
 }
@@ -826,8 +944,8 @@ int main()
     Continent* vecCont = new Continent[n];
     for (int i = 0; i < n; i++)
         cin >> vecCont[i];
-    cout << endl <<"Continentele au fost adaugate cu succes!";
-    cout <<endl<< "Pentru afisarea continentelor apasati tasta 1"<<endl;
+    cout << endl << "Continentele au fost adaugate cu succes!";
+    cout << endl << "Pentru afisarea continentelor apasati tasta 1" << endl;
     int raspuns;
     cin >> raspuns;
     if (raspuns == 1)
@@ -835,9 +953,6 @@ int main()
             cout << "Continentul numarul " << i + 1 << ":" << endl;
             cout << vecCont[i];
         }
-    for (int i = 0; i < n; i++) {
-    delete[]vecCont[i];
-    }
     delete[]vecCont;
     cout << "Cate tari doriti sa adaugati?" << endl;
     cin >> n;
@@ -847,14 +962,11 @@ int main()
     cout << endl << "Tarile au fost adaugate cu succes!";
     cout << endl << "Pentru afisarea tarilor apasati tasta 2" << endl;
     cin >> raspuns;
-    if(raspuns==2)
+    if (raspuns == 2)
         for (int i = 0; i < n; i++) {
             cout << "Tara cu numarul " << i + 1 << ":" << endl;
             cout << taraVec[i];
         }
-        for (int i = 0; i < n; i++) {
-    delete[]taraVec[i];
-    }
     delete[]taraVec;
     cout << endl << "Cate orase doriti sa adaugati?" << endl;
     cin >> n;
@@ -869,26 +981,23 @@ int main()
             cout << "Orasul cu numarul " << i + 1 << ":" << endl;
             cout << orasVec[i];
         }
-        for (int i = 0; i < n; i++) {
-    delete[]orasVec[i];
-    }
     delete[]orasVec;
     cout << endl << endl << "Teste pentru matrice de obiecte:";
     cout << endl;
-    cout << "Cate linii doriti sa aiba aceasta matrice?"<<endl;
+    cout << "Cate linii doriti sa aiba aceasta matrice?" << endl;
     int n;
     cin >> n;
     Continent** matriceContinent = new Continent * [n];
-    cout << "Cate coloane doriti sa aiba aceasta matrice?"<<endl;
+    cout << "Cate coloane doriti sa aiba aceasta matrice?" << endl;
     int m;
     cin >> m;
-    for(int i=0; i<n; i++)
+    for (int i = 0; i < n; i++)
         matriceContinent[i] = new Continent[m];
     int h = 1;
     for (int i = 0; i < n; i++)
         for (int j = 0; j < m; j++)
         {
-            cout << "Introduceti continentul numarul "<<h<<endl;
+            cout << "Introduceti continentul numarul " << h << endl;
             cin >> matriceContinent[i][j];
             h++;
         }
@@ -901,8 +1010,8 @@ int main()
             h++;
         }
     for (int i = 0; i < n; i++)
-        {
-            delete[]matriceContinent[i];
-        }
+    {
+        delete[]matriceContinent[i];
+    }
     delete[]matriceContinent;
 }
