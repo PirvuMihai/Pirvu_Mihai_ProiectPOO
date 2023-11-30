@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <fstream>
 using namespace std;
 
 
@@ -573,6 +573,7 @@ public:
 	friend ostream& operator<<(ostream& afisare, Continent& c);
 	friend istream& operator>>(istream& cit, Tara& t);
 	friend ostream& operator<<(ostream& afis, Tara& t);
+	friend ifstream& operator>>(ifstream& citire, Continent& c);
 };
 
 istream& operator>>(istream& citire, Continent& c) {
@@ -595,6 +596,13 @@ ostream& operator<<(ostream& afisare, Continent& c) {
 	for (int i = 0; i < c.getNrTari(); i++)
 		afisare << "Aceste tari sunt: " << c.getTari()[i];
 	return afisare;
+}
+
+ifstream& operator>>(ifstream& citire, Continent& c) {
+	cin >> c.nume;
+	cin >> c.populatie;
+	cin >> c.nrTari;
+
 }
 
 class Planeta {
