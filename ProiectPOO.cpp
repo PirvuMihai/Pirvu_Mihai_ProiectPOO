@@ -147,14 +147,54 @@ public:
 	string* getCartiere() const {
 		return this->cartiere;
 	}
+
+	void scrieInFisBinar(string numeFisier) {
+		ofstream f(numeFisier, ios::binary | ios::out);
+		int lung = nume.length() + 1;
+		f.write((char*)&lung, sizeof(int));
+		f.write((char*)nume.c_str(), lung);
+		f.write((char*)&nrLocuitori, sizeof(int));
+		f.write((char*)&nrCartiere, sizeof(int));
+		for (int i = 0; i < nrCartiere; i++) {
+			lung = cartiere[i].length() + 1;
+			f.write((char*)&lung, sizeof(int));
+			f.write((char*)cartiere[i].c_str(), lung);
+		}
+		f.close();
+	}
+
+	void citesteDinFisBinar(string numeFisier) {
+		ifstream f(numeFisier, ios::binary | ios::in);
+		int lung;
+		f.read((char*)&lung, sizeof(int));
+		char* numeChar = new char[lung];
+		f.read((char*)numeChar, lung);
+		nume = numeChar;
+		f.read((char*)&nrLocuitori, sizeof(int));
+		f.read((char*)&nrCartiere, sizeof(int));
+		if (cartiere != NULL)
+			delete[]cartiere;
+		cartiere = new string[nrCartiere];
+		for (int i = 0; i < nrCartiere; i++) {
+			lung = cartiere[i].length() + 1;
+			f.read((char*)&lung, sizeof(int));
+			f.read((char*)numeChar, lung);
+			cartiere[i] = numeChar;
+		}
+		delete[]numeChar;
+		f.close();
+	}
+
 	friend istream& operator>>(istream& read, Oras& o);
-	friend ostream& operator<<(ostream& show, Oras& o);
+	friend ostream& operator<<(ostream& show, const Oras& o);
+	friend ifstream& operator>>(ifstream& citire, Oras& o);
+	friend ofstream& operator<<(ofstream& afisare, const Oras& o);
 };
 
 istream& operator>>(istream& read, Oras& o) {
 	cout << "Introduceti numele orasului: ";
 	read >> o.nume;
-	cout << "Introduceti numarul locuitorilor din orasul "<<o.nume<<": ";
+	cout << "Introduceti numarul locuitorilor din orasul " << o.nume << ": ";
 	read >> o.nrLocuitori;
 	cout << "Introduceti numarul de cartiere :";
 	read >> o.nrCartiere;
@@ -166,7 +206,7 @@ istream& operator>>(istream& read, Oras& o) {
 	}
 	return read;
 }
-ostream& operator<<(ostream& show, Oras& o) {
+ostream& operator<<(ostream& show, const Oras& o) {
 	show << "Orasul cu numele " << o.getNume() << ", de pe planeta " << o.getPlaneta() << " are ID-ul " << o.getID() << " si are un numar de " << o.getNrLocuitori();
 	if (o.getNrLocuitori() <= 10)
 		show << " locuitori";
@@ -183,6 +223,27 @@ ostream& operator<<(ostream& show, Oras& o) {
 		show << endl;
 	}
 	return show;
+}
+
+ifstream& operator>>(ifstream& citire, Oras& o) {
+	citire >> o.nume;
+	citire >> o.nrLocuitori;
+	citire >> o.nrCartiere;
+	if (o.cartiere != NULL)
+		delete[]o.cartiere;
+	o.cartiere = new string[o.nrCartiere];
+	for (int i = 0; i < o.nrCartiere; i++)
+		citire >> o.cartiere[i];
+	return citire;
+}
+
+ofstream& operator<<(ofstream& afisare, Oras& o) {
+	afisare << o.getNume() << endl;
+	afisare << o.getNrLocuitori() << endl;
+	afisare << o.getNrCartiere() << endl;
+	for (int i = 0; i < o.getNrCartiere(); i++)
+		afisare << o.getCartiere()[i] << endl;
+	return afisare;
 }
 
 string Oras::planeta = "NumePlaneta";
@@ -219,7 +280,7 @@ public:
 		this->capitala = capitala;
 		this->nrOrase = nrOrase;
 		if (nrOrase > 0) {
-			if(this->orase!=NULL)
+			if (this->orase != NULL)
 				delete[] this->orase;
 			this->orase = new Oras[nrOrase];
 			for (int i = 0; i < nrOrase; i++) {
@@ -242,7 +303,7 @@ public:
 		this->capitala = t.capitala;
 		this->nrOrase = t.nrOrase;
 		this->orase = new Oras[this->nrOrase];
-		if (this->orase!=NULL) {
+		if (this->orase != NULL) {
 			delete[] this->orase;
 			this->orase = new Oras[this->nrOrase];
 		}
@@ -257,7 +318,7 @@ public:
 			this->capitala = t.capitala;
 			this->nrOrase = t.nrOrase;
 			if (this->nrOrase > 0) {
-				if(this->orase!=NULL)
+				if (this->orase != NULL)
 					delete[] this->orase;
 				this->orase = new Oras[this->nrOrase];
 				for (int i = 0; i < nrOrase; i++) {
@@ -315,35 +376,35 @@ public:
 		return *this;
 	}
 	const Tara operator/(Tara& t) {
-		if(t.populatie!=0)
+		if (t.populatie != 0)
 			this->populatie = this->populatie / t.populatie;
 		return *this;
 	}
-	
+
 	//Seteri si geteri
 	void setNume(string nume) {
 		this->nume = nume;
 	}
-	string getNume() {
+	string getNume() const{
 		return this->nume;
 	}
 	void setPopulatie(int populatie) {
 		this->populatie = populatie;
 	}
-	int getPopulatie() {
+	int getPopulatie() const{
 		return this->populatie;
 	}
 	void setCapitala(string capitala) {
 		this->capitala = capitala;
 	}
-	string getCapitala() {
+	string getCapitala() const{
 		return this->capitala;
 	}
 	void setNrOrase(int nrOrase) {
 		this->nrOrase = nrOrase;
 		this->orase = new Oras[nrOrase];
 	}
-	int getNrOrase() {
+	int getNrOrase() const{
 		return this->nrOrase;
 	}
 	void setOrase(int nrOrase, Oras* orase) {
@@ -356,7 +417,7 @@ public:
 				aux = new Oras[this->nrOrase];
 				for (int i = 0; i < this->nrOrase; i++)
 					aux[i] = this->orase[i];
-				if(this->orase!=NULL)
+				if (this->orase != NULL)
 					delete[]this->orase;
 				this->orase = new Oras[nrOrase];
 				for (int i = 0; i < this->nrOrase; i++)
@@ -368,13 +429,17 @@ public:
 			}
 		}
 	}
-	Oras* getOrase() {
+	Oras* getOrase() const {
 		return this->orase;
 	}
+
+
 	friend istream& operator>>(istream& cit, Tara& t);
-	friend ostream& operator<<(ostream& afis, Tara& t);
+	friend ostream& operator<<(ostream& afis, const Tara& t);
 	friend istream& operator>>(istream& read, Oras& o);
-	friend ostream& operator<<(ostream& show, Oras& o);
+	friend ostream& operator<<(ostream& show, const Oras& o);
+	friend ifstream& operator>>(ifstream& citire, Tara& t);
+	friend ofstream& operator<<(ofstream& afisare, const Tara& t);
 };
 
 istream& operator>>(istream& cit, Tara& t) {
@@ -404,14 +469,37 @@ istream& operator>>(istream& cit, Tara& t) {
 	}
 	return cit;
 }
-ostream& operator<<(ostream& afis, Tara& t) {
-	afis << "Tara " << t.getNume() << " are capitala in "<<t.getCapitala()<<", are o populatie de "<<t.getPopulatie()<<" de oameni, acestia fiind situati in "<<t.getNrOrase()<<" orase. Acestea sunt: ";
+ostream& operator<<(ostream& afis, const Tara& t) {
+	afis << "Tara " << t.getNume() << " are capitala in " << t.getCapitala() << ", are o populatie de " << t.getPopulatie() << " de oameni, acestia fiind situati in " << t.getNrOrase() << " orase. Acestea sunt: ";
 	if (t.getNrOrase() == 0)
 		afis << endl << "Orasele acestei tari nu sunt trecute in baza de date.";
 	else
 		for (int i = 0; i < t.getNrOrase(); i++)
-			afis <<endl << t.orase[i];
+			afis << endl << t.getOrase()[i];
 	return afis;
+}
+
+ifstream& operator>>(ifstream& citire, Tara& t) {
+	citire >> t.nume;
+	citire >> t.populatie;
+	citire >> t.capitala;
+	citire >> t.nrOrase;
+	if (t.orase != NULL)
+		delete[]t.orase;
+	t.orase = new Oras[t.nrOrase];
+	for (int i = 0; i < t.nrOrase; i++)
+		citire >> t.orase[i];
+	return citire;
+}
+
+ofstream& operator<<(ofstream& afisare, const Tara& t) {
+	afisare << t.nume << endl;
+	afisare << t.populatie << endl;
+	afisare << t.capitala << endl;
+	afisare << t.nrOrase << endl;
+	for (int i = 0; i < t.nrOrase; i++)
+		afisare << t.orase[i] << endl;
+	return afisare;
 }
 
 class Continent {
@@ -450,14 +538,14 @@ public:
 	}
 	//Constructorul de copiere
 	Continent(Continent& c) : ID(c.ID) {
-			this->nume = c.nume;
-			this->populatie = c.populatie;
-			this->nrTari = c.nrTari;
-			if (this->tari != NULL)
-				delete[]this->tari;
-			this->tari = new Tara[this->nrTari];
-			for (int i = 0; i < this->nrTari; i++)
-				this->tari[i] = c.tari[i];
+		this->nume = c.nume;
+		this->populatie = c.populatie;
+		this->nrTari = c.nrTari;
+		if (this->tari != NULL)
+			delete[]this->tari;
+		this->tari = new Tara[this->nrTari];
+		for (int i = 0; i < this->nrTari; i++)
+			this->tari[i] = c.tari[i];
 	}
 	//Destructorul
 	~Continent() {
@@ -527,26 +615,26 @@ public:
 
 
 	//Geteri si Seteri
-	int getID() {
+	int getID() const{
 		return this->ID;
 	}
 	void setNume(string nume) {
 		this->nume = nume;
 	}
-	string getNume() {
+	string getNume() const{
 		return this->nume;
 	}
 	void setPopulatie(int populatie) {
 		this->populatie = populatie;
 	}
-	int getPopulatie() {
+	int getPopulatie() const{
 		return this->populatie;
 	}
 	void setNrTari(int nrTari) {
 		this->nrTari = nrTari;
 		this->tari = new Tara[nrTari];
 	}
-	int getNrTari() {
+	int getNrTari() const{
 		return this->nrTari;
 	}
 	void setTari(int nrTari, Tara* tari) {
@@ -556,7 +644,7 @@ public:
 					this->tari[i] = tari[i];
 			else {
 				this->nrTari = nrTari;
-//				this->tari = new Tara[nrTari];
+				//				this->tari = new Tara[nrTari];
 				if (this->tari != NULL)
 					delete[]this->tari;
 				this->tari = new Tara[nrTari];
@@ -565,15 +653,16 @@ public:
 			}
 		}
 	}
-	Tara* getTari() {
+	Tara* getTari() const {
 		return this->tari;
 	}
 	//Functiile de afisare si citire
 	friend istream& operator>>(istream& citire, Continent& c);
-	friend ostream& operator<<(ostream& afisare, Continent& c);
+	friend ostream& operator<<(ostream& afisare, const Continent& c);
 	friend istream& operator>>(istream& cit, Tara& t);
-	friend ostream& operator<<(ostream& afis, Tara& t);
+	friend ostream& operator<<(ostream& afis, const Tara& t);
 	friend ifstream& operator>>(ifstream& citire, Continent& c);
+	friend ofstream& operator<<(ofstream& afisare, const Continent& c);
 };
 
 istream& operator>>(istream& citire, Continent& c) {
@@ -591,7 +680,7 @@ istream& operator>>(istream& citire, Continent& c) {
 	return citire;
 }
 
-ostream& operator<<(ostream& afisare, Continent& c) {
+ostream& operator<<(ostream& afisare, const Continent& c) {
 	afisare << "Continentul " << c.getNume() << " are ID-ul " << c.getID() << ". In acesta locuiesc momentan " << c.getPopulatie() << " de mii de oameni, care sunt impartiti in " << c.getNrTari() << " tari.";
 	for (int i = 0; i < c.getNrTari(); i++)
 		afisare << "Aceste tari sunt: " << c.getTari()[i];
@@ -599,10 +688,24 @@ ostream& operator<<(ostream& afisare, Continent& c) {
 }
 
 ifstream& operator>>(ifstream& citire, Continent& c) {
-	cin >> c.nume;
-	cin >> c.populatie;
-	cin >> c.nrTari;
+	citire >> c.nume;
+	citire >> c.populatie;
+	citire >> c.nrTari;
+	if (c.tari != NULL)
+		delete[]c.tari;
+	c.tari = new Tara[c.nrTari];
+	for (int i = 0; i < c.nrTari; i++)
+		citire >> c.tari[i];
+	return citire;
+}
 
+ofstream& operator<<(ofstream& afisare, const Continent& c) {
+	afisare << c.nume<<endl;
+	afisare << c.populatie<<endl;
+	afisare << c.nrTari<<endl;
+	for (int i = 0; i < c.nrTari; i++)
+		afisare << c.tari[i] << endl;
+	return afisare;
 }
 
 class Planeta {
@@ -708,7 +811,7 @@ public:
 	//Operatorul cast, returneaza continentul cu cele mai multe specii
 	string operator()() {
 		int max = -1;
-		int cnt=0;
+		int cnt = 0;
 		if (this->nrContinente == 0)
 			return 0;
 		else if (this->locuibila) {
@@ -727,34 +830,34 @@ public:
 		return aux;
 	}
 	//Geteri si Seteri
-	int getID() {
+	int getID() const {
 		return this->ID;
 	}
 	void setNrContinente(int nrContinente) {
 		this->nrContinente = nrContinente;
 	}
-	int getNrContinente() {
+	int getNrContinente() const{
 		return this->nrContinente;
 	}
 	void setNume(string nume) {
 		this->nume = nume;
 	}
-	string getNume() {
+	string getNume() const {
 		return this->nume;
 	}
 	void setLocuibila(bool locuibila) {
 		this->locuibila = locuibila;
 	}
-	bool getLocuibila() {
+	bool getLocuibila() const {
 		return this->locuibila;
 	}
 	void setNrSpecii(int nrSpecii) {
 		this->nrSpecii = nrSpecii;
 	}
-	int getNrSpecii() {
+	int getNrSpecii() const {
 		return this->nrSpecii;
 	}
-	Continent* getContinent() {
+	Continent* getContinent() const {
 		return this->continent;
 	}
 	void setContinent(int nrContinente, Continent* c) {
@@ -763,7 +866,7 @@ public:
 				for (int i = 0; i < nrContinente; i++)
 					this->continent[i] = c[i];
 			else {
-				if(this->continent!=NULL)
+				if (this->continent != NULL)
 					delete[]this->continent;
 				this->continent = new Continent[nrContinente];
 				for (int i = 0; i < nrContinente; i++)
@@ -794,7 +897,7 @@ public:
 		}
 		return in;
 	}
-	friend ostream& operator<<(ostream& out, Planeta& p) {
+	friend ostream& operator<<(ostream& out, const Planeta& p) {
 		out << "Planeta " << p.getNume() << " are ID-ul " << p.getID();
 		if (p.getLocuibila()) {
 			out << "\nAceasta planeta este locuibila si are " << p.getNrContinente() <<
@@ -817,15 +920,41 @@ public:
 		}
 		return out;
 	}
+	friend ifstream& operator>>(ifstream& fcitire, Planeta& p);
+	friend ofstream& operator<<(ofstream& fafisare, const Planeta& p);
 	friend istream& operator>>(istream& citire, Continent& c);
 	friend ostream& operator<<(ostream& afisare, Continent& c);
 };
+ifstream& operator>>(ifstream& fcitire, Planeta& p) {
+	fcitire >> p.nume;
+	fcitire >> p.locuibila;
+	fcitire >> p.nrSpecii;
+	fcitire >> p.nrContinente;
+	if (p.continent != NULL)
+		delete[]p.continent;
+	p.continent = new Continent[p.nrContinente];
+	for (int i = 0; i < p.nrContinente; i++)
+		fcitire >> p.continent[i];
+	return fcitire;
+}
+ofstream& operator<<(ofstream& fafisare, const Planeta& p) {
+	fafisare << p.nume<<endl;
+	fafisare << p.locuibila << endl;
+	fafisare << p.nrSpecii << endl;
+	fafisare << p.nrContinente << endl;
+	for (int i = 0; i < p.nrContinente; i++)
+		fafisare << p.continent[i] << " ";
+	fafisare << endl;
+	return fafisare;
+}
 
 int main() {
+	ifstream g("planetaCitire.txt", ios::in);
+	ofstream f("planeta.txt", ios::out);
 	Planeta p1;
 	int nrTari = 0;
 	cin >> p1;
-	cout << p1;
+	f << p1;
 	Continent* c1;
 	Continent* c2;
 	c2 = new Continent[1];
@@ -863,21 +992,41 @@ int main() {
 		for (int j = 0; j < t1[i].getNrOrase(); j++)
 			o1[i] = t1[i].getOrase()[j];
 	cout << "Orasele: ";
-	for(int i=0; i<t1[i].getNrOrase(); i++)
-		cout << o1[i]<<endl;
+	for (int i = 0; i < t1[i].getNrOrase(); i++)
+		cout << o1[i] << endl;
 	//De implementat seterii
-	
-	Oras** o2;
-	int nrLin, nrCol;
-	cout << endl << "Cate linii doriti sa aiba matricea dumneavoastra?";
-	cin >> nrLin;
-	cout << endl << "Cate coloane doriti sa aiba matricea dumneavoastra?";
-	cin >> nrCol;
-	o2 = new Oras * [nrLin];
-	for (int i = 0; i < nrLin; i++)
-		o2[i] = new Oras[nrCol];
-	for (int i = 0; i < nrLin; i++)
-		for (int j = 0; j < nrCol; j++)
-			cin >> o2[i][j];
-	
+		/*
+	char raspuns;
+	cout << "Doriti sa introduceti o matrice de orase? 1-Da 0-Nu"<<endl;
+	cin >> raspuns;
+	while (raspuns != 1 && raspuns != 0) {
+		cout << "Va rugam sa reintroduceti raspunsul dumneavoastra utilizand valorile mentionate." << endl;
+		cin >> raspuns;
+	}
+	if (raspuns == 1) {
+		Oras** o2;
+		int nrLin, nrCol;
+		cout << endl << "Cate linii doriti sa aiba matricea dumneavoastra?";
+		cin >> nrLin;
+		cout << endl << "Cate coloane doriti sa aiba matricea dumneavoastra?";
+		cin >> nrCol;
+		o2 = new Oras * [nrLin];
+		for (int i = 0; i < nrLin; i++)
+			o2[i] = new Oras[nrCol];
+		for (int i = 0; i < nrLin; i++)
+			for (int j = 0; j < nrCol; j++)
+				cin >> o2[i][j];
+	}
+	*/
+	Oras test;
+	o1[0].scrieInFisBinar("test.dat");
+	test.citesteDinFisBinar("test.dat");
+	cout << endl << "Acest oras a fost citit din fisierul binar" << endl;
+	cout << test << endl << o1[0];
+	t1[0].scriereInFisBinar("test1.dat");
+	Tara t0;
+	t0.citesteDinFisierBinar("test1.dat");
+	cout << t0;
+	f.close();
+	g.close();
 }
