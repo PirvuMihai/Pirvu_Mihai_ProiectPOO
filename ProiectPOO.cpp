@@ -1100,15 +1100,15 @@ public:
 };
 
 int main() {
-	Capitala c;
+	Capitala cap;
 	Oras o("Urlati", 10, 5);
-	cin >> c;
-	cout << c;
-	Capitala c1(c);
-	cout << c1;
-	Capitala c2;
-	c2 = c1;
-	cout << c2;
+	cin >> cap;
+	cout << cap;
+	Capitala cap1(cap);
+	cout << cap;
+	Capitala cap2;
+	cap2 = cap;
+	cout << cap2;
 	PutereGlobala pg1;
 	cin >> pg1;
 	cout << pg1;
