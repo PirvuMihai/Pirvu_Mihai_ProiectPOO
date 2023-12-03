@@ -2,7 +2,6 @@
 #include <fstream>
 using namespace std;
 
-
 class Oras {
 private:
 	const int ID;
@@ -206,6 +205,7 @@ istream& operator>>(istream& read, Oras& o) {
 	}
 	return read;
 }
+
 ostream& operator<<(ostream& show, const Oras& o) {
 	show << "Orasul cu numele " << o.getNume() << ", de pe planeta " << o.getPlaneta() << " are ID-ul " << o.getID() << " si are un numar de " << o.getNrLocuitori();
 	if (o.getNrLocuitori() <= 10)
@@ -247,6 +247,7 @@ ofstream& operator<<(ofstream& afisare, Oras& o) {
 }
 
 string Oras::planeta = "NumePlaneta";
+
 class Tara {
 private:
 	const int ID;
@@ -433,6 +434,41 @@ public:
 		return this->orase;
 	}
 
+	void scriereInFisBinar(string numeFisier) {
+		ofstream f(numeFisier, ios::binary | ios::out);
+		int lung = nume.length() + 1;
+		f.write((char*)&lung, sizeof(int));
+		f.write((char*)nume.c_str(), lung);
+		f.write((char*)&populatie, sizeof(int));
+		lung = capitala.length() + 1;
+		f.write((char*)&lung, sizeof(int));
+		f.write((char*)capitala.c_str(), lung);
+		f.write((char*)&nrOrase, sizeof(int));
+		for (int i = 0; i < nrOrase; i++)
+			orase[i].scrieInFisBinar(numeFisier);
+		f.close();
+	 }
+	void citesteDinFisBinar(string numeFisier) {
+		ifstream f(numeFisier, ios::binary | ios::in);
+		int lung;
+		f.read((char*)&lung, sizeof(int));
+		char* numeTemp = new char[lung];
+		f.read((char*)numeTemp, lung);
+		nume = numeTemp;
+		f.read((char*)&populatie, sizeof(int));
+		f.read((char*)&lung, sizeof(int));
+		delete[]numeTemp;
+		numeTemp = new char[lung];
+		f.read((char*)numeTemp, lung);
+		capitala = numeTemp;
+		f.read((char*)&nrOrase, sizeof(int));
+		if (orase != NULL)
+			delete[]orase;
+		orase = new Oras[nrOrase];
+		for (int i = 0; i < nrOrase; i++)
+			orase[i].citesteDinFisBinar(numeFisier);
+		f.close();
+	}
 
 	friend istream& operator>>(istream& cit, Tara& t);
 	friend ostream& operator<<(ostream& afis, const Tara& t);
@@ -469,6 +505,7 @@ istream& operator>>(istream& cit, Tara& t) {
 	}
 	return cit;
 }
+
 ostream& operator<<(ostream& afis, const Tara& t) {
 	afis << "Tara " << t.getNume() << " are capitala in " << t.getCapitala() << ", are o populatie de " << t.getPopulatie() << " de oameni, acestia fiind situati in " << t.getNrOrase() << " orase. Acestea sunt: ";
 	if (t.getNrOrase() == 0)
@@ -925,6 +962,7 @@ public:
 	friend istream& operator>>(istream& citire, Continent& c);
 	friend ostream& operator<<(ostream& afisare, Continent& c);
 };
+
 ifstream& operator>>(ifstream& fcitire, Planeta& p) {
 	fcitire >> p.nume;
 	fcitire >> p.locuibila;
@@ -937,6 +975,7 @@ ifstream& operator>>(ifstream& fcitire, Planeta& p) {
 		fcitire >> p.continent[i];
 	return fcitire;
 }
+
 ofstream& operator<<(ofstream& fafisare, const Planeta& p) {
 	fafisare << p.nume<<endl;
 	fafisare << p.locuibila << endl;
@@ -948,7 +987,135 @@ ofstream& operator<<(ofstream& fafisare, const Planeta& p) {
 	return fafisare;
 }
 
+class Capitala : public Oras {
+private:
+	int anDesemnare;
+public:
+	Capitala() : Oras() {
+		this->anDesemnare = 1500;
+	}
+	Capitala(int an, int ID, string nume, int nrLoc, int nrCar, string* cartiere) : Oras(nume, nrLoc, nrCar, cartiere, ID) {
+		this->anDesemnare = an;
+	}
+	~Capitala() {
+
+	}
+	Capitala(Capitala& c) : Oras(c) {
+		this->anDesemnare = c.anDesemnare;
+	}
+	const Capitala operator=(const Capitala c) {
+		this->anDesemnare = c.anDesemnare;
+		(Oras&)*this = (Oras&)c;
+		return *this;
+	}
+	void setAnDesemnare(int an) {
+		this->anDesemnare = an;
+	}
+	int getAnDesemnare() const {
+		return this->anDesemnare;
+	}
+	friend istream& operator>>(istream& read, Oras& o);
+	friend istream& operator>>(istream& in, Capitala& c) {
+		cout << "In ce an a devenit acest oras capitala?" << endl;
+		in >> c.anDesemnare;
+		//in >> static_cast<Oras&>(c);
+		in >> (Oras&)c;
+		return in;
+	}
+	friend ostream& operator<<(ostream& show, const Oras& o);
+	friend ostream& operator<<(ostream& out, const Capitala& c) {
+		out << "Orasul " << c.getNume() << " a devenit capitala in anul " << c.getAnDesemnare()<<endl;
+		out << (const Oras&)c;
+		//out << static_cast<const Oras&>(c);
+		return out;
+	}
+};
+
+class PutereGlobala : public Tara {
+private:
+	int nrTancuri;
+	int nrAvioane;
+	int nrSoldati;
+public:
+	PutereGlobala() : Tara() {
+		this->nrAvioane = 0;
+		this->nrSoldati = 0;
+		this->nrTancuri = 0;
+	}
+	PutereGlobala(int nrAvioane, int nrSoldati, int nrTancuri, int ID, string nume, int populatie, int nrOrase, string capitala, Oras* orase) : Tara(ID, nume, capitala, populatie, nrOrase, orase) {
+		this->nrAvioane = nrAvioane;
+		this->nrSoldati = nrSoldati;
+		this->nrTancuri = nrTancuri;
+	}
+	~PutereGlobala() {
+
+	}
+	PutereGlobala(PutereGlobala& pg) : Tara(pg){
+		this->nrAvioane = pg.nrAvioane;
+		this->nrSoldati = pg.nrSoldati;
+		this->nrTancuri = pg.nrTancuri;
+	}
+	const PutereGlobala operator=(PutereGlobala& pg) {
+		this->nrAvioane = pg.nrAvioane;
+		this->nrSoldati = pg.nrSoldati;
+		this->nrTancuri = pg.nrTancuri;
+		(Tara)*this = pg;
+		return *this;
+	}
+	int getNrAvioane() const{
+		return this->nrAvioane;
+	}
+	int getNrTancuri() const{
+		return this->nrTancuri;
+	}
+	int getNrSoldati() const{
+		return this->nrSoldati;
+	}
+	void setNrAvioane(int nrAvioane) {
+		this->nrAvioane = nrAvioane;
+	}
+	void setNrTancuri(int nrTancuri) {
+		this->nrTancuri = nrTancuri;
+	}
+	void setNrSoldati(int nrSoldati) {
+		this->nrSoldati = nrSoldati;
+	}
+	friend istream& operator>>(istream& cit, Tara& t);
+	friend istream& operator>>(istream& in, PutereGlobala& pg) {
+		cout << "Cate avioane are aceasta putere globala?" << endl;
+		in >> pg.nrAvioane;
+		cout << "Dar soldati?"<<endl;
+		in >> pg.nrSoldati;
+		cout << "Dar tancuri?" << endl;
+		in >> pg.nrTancuri;
+		in >> (Tara&)pg;
+		return in;
+	}
+	friend ostream& operator<<(ostream& afis, const Tara& t);
+	friend ostream& operator<<(ostream& out, const PutereGlobala& pg) {
+		out << "Tara " << pg.getNume() << " este o putere globala, avand " << pg.getNrSoldati() << " soldati activi, " << pg.getNrTancuri() << " de tancuri si " << pg.getNrAvioane() << " de avioane la dispozitie." << endl;
+		out << (Tara&)pg;
+		return out;
+	}
+};
+
 int main() {
+	Capitala c;
+	Oras o("Urlati", 10, 5);
+	cin >> c;
+	cout << c;
+	Capitala c1(c);
+	cout << c1;
+	Capitala c2;
+	c2 = c1;
+	cout << c2;
+	PutereGlobala pg1;
+	cin >> pg1;
+	cout << pg1;
+	PutereGlobala pg2(pg1);
+	cout << pg2;
+	PutereGlobala pg3 = pg1;
+	cout << pg3;
 	ifstream g("planetaCitire.txt", ios::in);
 	ofstream f("planeta.txt", ios::out);
 	Planeta p1;
@@ -1025,8 +1192,9 @@ int main() {
 	cout << test << endl << o1[0];
 	t1[0].scriereInFisBinar("test1.dat");
 	Tara t0;
-	t0.citesteDinFisierBinar("test1.dat");
+	t0.citesteDinFisBinar("test1.dat");
 	cout << t0;
 	f.close();
 	g.close();
+	
 }
